@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.concertante/
+*.private.json
+.DS_Store
+.ruff_cache/
