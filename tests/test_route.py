@@ -85,12 +85,21 @@ def main():
         else:
             assert actual["ok"] is False
     print(f"PASS: {len(cases)} routing CLI scenarios")
+    with tempfile.TemporaryDirectory(prefix="concertante-invalid-input-") as directory:
+        path = Path(directory) / "snapshot.private.json"
+        path.write_bytes(bytes([255]))
+        result = subprocess.run([sys.executable, str(SCRIPT), "route", str(path)], capture_output=True, text=True, check=False)
+        assert result.returncode == 2
+        assert json.loads(result.stdout)["error"] == "read_failed_or_invalid_json"
+        assert result.stderr == ""
+    print("PASS: invalid UTF-8 snapshot returns sanitized JSON")
     with tempfile.TemporaryDirectory(prefix="concertante-doctor-") as directory:
         fake = Path(directory) / "fake-cli"
         bodies = [
             ("raise SystemExit(7)", 1, "orca_status_failed"),
             ("print('not-json')", 1, "invalid_orca_status"),
             ("print('{}')", 1, "invalid_orca_status"),
+            ("import sys; sys.stdout.buffer.write(bytes([255]))", 1, "invalid_orca_status"),
             ("print('{\"ok\":true,\"result\":{\"runtime\":{\"state\":\"ready\",\"reachable\":true,\"appVersion\":\"test\"},\"graph\":{\"state\":\"ready\"}}}')", 0, None),
         ]
         for body, code, error in bodies:
@@ -102,7 +111,7 @@ def main():
             assert actual.get("error") == error, actual
         result = subprocess.run([sys.executable, str(SCRIPT), "doctor", str(fake.parent / 'missing-cli')], capture_output=True, text=True, check=False)
         assert json.loads(result.stdout)["error"] == "cli_not_found"
-    print("PASS: 5 doctor CLI process-boundary scenarios")
+    print("PASS: 6 doctor CLI process-boundary scenarios")
 
 
 if __name__ == "__main__":

@@ -182,6 +182,9 @@ def doctor(executable: str | None = None) -> int:
     except subprocess.TimeoutExpired:
         print(json.dumps({"ok": False, "error": "cli_timeout"}))
         return 1
+    except UnicodeError:
+        print(json.dumps({"ok": False, "error": "invalid_orca_status"}))
+        return 1
     except OSError as error:
         print(json.dumps({"ok": False, "error": "cli_execution_failed", "errno": error.errno}))
         return 1
@@ -228,7 +231,7 @@ def main() -> int:
     except InputError as error:
         print(json.dumps({"ok": False, "error": str(error)}))
         return 2
-    except (OSError, json.JSONDecodeError):
+    except (OSError, UnicodeError, json.JSONDecodeError):
         print(json.dumps({"ok": False, "error": "read_failed_or_invalid_json"}))
         return 2
 
