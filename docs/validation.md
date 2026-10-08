@@ -9,7 +9,7 @@ This first release is a skill package with advisory helpers. It is not a new sch
 | Skill structure/frontmatter | PASS: skill-creator quick validator |
 | Live Orca read-only readiness | PASS: doctor on Orca 1.4.222/macOS, runtime and graph ready |
 | Skill discovery/install | PASS: npx skills local installation for Codex and Claude into an isolated temporary project; entrypoint/helper bytes equal source |
-| Independent behavioral review | Initial review found two HIGH and one MEDIUM; fixes awaiting independent recheck |
+| Independent behavioral review | PASS: two HIGH and one MEDIUM fixed; independent recheck APPROVE with no remaining material findings |
 | End-to-end Codex↔Claude task handoff | Not covered |
 | Generic coordinator takeover | Not covered; only supported Orca contracts may be used |
 | Host reboot / daemon failure recovery | Not covered |

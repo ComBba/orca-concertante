@@ -1,16 +1,37 @@
+<div align="center">
+
 # Orca Concertante
 
-A goal-driven coding-agent collaboration skill for [Orca](https://www.onorca.dev/).
+### Three specialists. One goal. Evidence at every turn.
 
-[한국어 안내](README.ko.md)
+**Goal-driven loop engineering and agent communication for Orca.**
 
-Give the agent a goal once. Concertante helps it define completion, divide work, review independently, and hand off at safe checkpoints without repeatedly asking you to choose the next routine step.
+[![Validate](https://github.com/ComBba/orca-concertante/actions/workflows/validate.yml/badge.svg)](https://github.com/ComBba/orca-concertante/actions/workflows/validate.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Agent Skill](https://img.shields.io/badge/Agent-Skill-purple.svg)](skills/orca-concertante/SKILL.md)
+
+[Quick start](#quick-start) · [How it works](#how-it-works) · [Verified scope](docs/validation.md) · [한국어](README.ko.md)
+
+</div>
+
+Give your agents a destination, not a stream of “continue” prompts.
+
+Concertante helps specialized coding agents share a goal, communicate through
+[Orca](https://www.onorca.dev/), and repeat **build → verify → review → improve**
+until the agreed outcome is proven. Ownership and evidence travel with the work
+when the next specialist takes over.
+
+Built for frontier coding agents, with configurable roles and models. The default
+profile uses Codex and Claude as primary workers, with Antigravity offering an
+optional, brief third perspective. Three specialists need not do equal amounts of work.
 
 This is an independent community project, not an official Orca product.
 
-## Install
+## Quick start
 
-Prerequisites: Orca and its registered CLI, at least one configured coding agent, and Python 3.11+ for the optional helpers. Agents retain their existing authentication and model configuration.
+Prerequisites: Orca and its registered CLI, configured coding agents, and Python
+3.11+ for the optional helpers. Agents retain their existing authentication and
+model configuration. Start with Codex for the default initial-design role.
 
 ```bash
 npx skills add https://github.com/ComBba/orca-concertante --skill orca-concertante --global
@@ -24,7 +45,43 @@ Then ask your agent:
 
 You can invoke `$orca-concertante` explicitly where supported. Ordinary natural-language discovery depends on the agent's skill support.
 
-## Default collaboration profile
+## Why Concertante?
+
+| What usually breaks | Concertante's approach |
+|---|---|
+| Agents optimize different interpretations | One goal contract and observable completion criteria |
+| A finished turn is mistaken for finished work | Evidence-driven completion and the next useful task |
+| Two agents edit the same scope | One owner; isolated worktrees for independent changes |
+| “Continue” prompts replace coordination | Orca tasks, dispatch identities, messages, and settlements |
+| Quota pressure loses context | Safe-boundary handoffs preserving goal, authority, source, and evidence |
+| Review becomes endless ceremony | Material defects and missing acceptance determine repairs |
+
+## How it works
+
+```mermaid
+flowchart LR
+    G[One user goal] --> C[Concept and acceptance]
+    C --> B[Build a bounded slice]
+    B --> V[Verify the real surface]
+    V --> R[Independent review]
+    R -->|Material gap| B
+    R -->|Slice proven| N{Goal complete?}
+    N -->|No| T[Next task or safe handoff]
+    T --> B
+    N -->|Yes| D[Deliver with evidence]
+```
+
+**Loop engineering** gives every iteration a purpose, owner, observable result,
+and next decision. Failed checks lead to repairs. Uncertain external effects
+pause that branch for inspection. Genuine missing authority is escalated while
+independent work continues.
+
+**Agent communication** carries actionable scope, constraints, source state,
+acceptance evidence, and unresolved effects. Orca's Run/Task/Dispatch and inbox
+contracts remain lifecycle authority. Concertante does not build a competing
+scheduler or task database. Read the [loop design](docs/loop-engineering.md).
+
+## Three specialists, flexible roles
 
 | Responsibility | Default |
 |---|---|
@@ -36,7 +93,7 @@ You can invoke `$orca-concertante` explicitly where supported. Ordinary natural-
 
 These are defaults, not vendor requirements. A project can replace the agents or use one agent, reporting the missing independent review rather than pretending it happened. Work allocation follows task fit, context, access, actual availability, and handoff cost—not subscription price.
 
-## Included
+## Included today
 
 - A portable skill entrypoint using the installed Orca CLI's version-matched guides.
 - Goal, ownership, handoff, recovery, and evidence conventions.
@@ -64,6 +121,10 @@ The installed Orca guide is authoritative for command syntax. Initial compatibil
 
 [Validation status](docs/validation.md) distinguishes local tests, live read-only inspection, installation, and end-to-end agent collaboration. Successful tests do not imply autonomous cross-agent completion is proven.
 
+The current release is an installable skill with executable advisory helpers.
+Full cross-agent automation, generic coordinator takeover, host-reboot recovery,
+and live Linux/Windows integration remain unverified. See the [roadmap](docs/roadmap.md).
+
 ## Development
 
 ```bash
@@ -72,6 +133,11 @@ python3 -m compileall -q skills/orca-concertante/scripts
 ```
 
 Use feature branches and commit-preserving PR merges. Do not commit private snapshots, credentials, raw session transcripts, or project-specific operational records.
+
+The highest-value contributions are reproducible failures, real Orca integration
+evidence, and simpler paths to verified completion. See [contributing](CONTRIBUTING.md)
+and [security](SECURITY.md). If this workflow helps your team, a star makes it
+easier for others to discover it.
 
 ## Official references
 
