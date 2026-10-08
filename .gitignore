@@ -3,3 +3,4 @@ __pycache__/
 .concertante/
 *.private.json
 .DS_Store
+.ruff_cache/

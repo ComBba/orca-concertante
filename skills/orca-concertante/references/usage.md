@@ -8,13 +8,13 @@ The optional route helper accepts normalized observations; it is not a collector
 
 ## Snapshot schema
 
-Times are Unix seconds. `now` is the decision time and `observed_at` belongs to each provider. `available=false` means the agent is positively known unavailable; `true` means runnable, not guaranteed capacity. `windows=[]` is unknown. Omit genuinely inapplicable windows using an explicit entry. Agent keys are configurable strings; `current` must be one of them, and exactly two primary agents are required by this helper.
+Times are Unix seconds. `created_at` is snapshot creation time and `observed_at` belongs to each provider. The helper uses its own system clock for freshness; a snapshot older than five minutes or more than five seconds in the future is rejected. `available=false` means the agent is positively known unavailable; `true` means runnable, not guaranteed capacity. `windows=[]` is unknown. Omit genuinely inapplicable windows using an explicit entry. Agent keys are configurable strings; `current` must be one of them, and exactly two primary agents are required by this helper.
 
 ```json
 {
-  "now": 2000000100,
+  "created_at": 2000000100,
   "current": "primary-a",
-  "in_flight": false,
+  "ownership_state": "idle",
   "agents": {
     "primary-a": {
       "available": true,
@@ -31,6 +31,8 @@ Times are Unix seconds. `now` is the decision time and `observed_at` belongs to 
 ```
 
 Each window status is `available`, `unavailable`, or `not_applicable`. Available windows require a finite percent in 0–100 and a positive reset time. Unknown/stale/expired observations never become zero usage. Future observation timestamps are rejected by parsing.
+
+The timestamps above illustrate the format; replace them with current observations before execution. Ownership must be exactly `idle`, `active`, or `outcome_unknown`. Only `idle` allows a handoff recommendation. Unsupported/missing top-level fields are refused, so legacy boolean or additional safety state cannot silently disappear.
 
 ## Initial policy
 

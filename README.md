@@ -50,11 +50,13 @@ The helper **does not** collect provider credentials, launch workers, transfer c
 Resolve the installed skill directory and use its script:
 
 ```bash
-python3 <skill-directory>/scripts/concertante.py doctor
+python3 <skill-directory>/scripts/concertante.py doctor <resolved-orca-cli>
 python3 <skill-directory>/scripts/concertante.py route <private-snapshot.json>
 ```
 
 `doctor` reads Orca runtime readiness and advertised capabilities. `route` validates a supplied usage snapshot and recommends keeping or changing the next task owner. Neither mutates Orca or the project. See [usage and routing](skills/orca-concertante/references/usage.md).
+
+Pass the executable resolved by the installed Orca guide, for example `orca` on macOS. On Linux, an explicit executable or Orca's exported CLI environment is required so the helper cannot accidentally select the GNOME screen reader. Doctor errors distinguish missing CLI, timeout, process failure, and malformed status; it deliberately excludes raw stderr and local paths.
 
 ## Support and verification
 

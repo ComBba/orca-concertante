@@ -2,7 +2,7 @@
 # requires-python = ">=3.11"
 # dependencies = []
 # ///
-# Run: python3 concertante.py doctor | route <private-snapshot.json>
+# Run: python3 concertante.py doctor [resolved-cli] | route <private-snapshot.json>
 """Read-only Orca readiness and advisory next-task routing, with no dependencies."""
 
 from __future__ import annotations
@@ -12,9 +12,10 @@ import math
 import os
 import subprocess
 import sys
+import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Final, TypeAlias
+from typing import Final, Literal, TypeAlias
 
 Json: TypeAlias = str | int | float | bool | None | list["Json"] | dict[str, "Json"]
 FRESHNESS: Final = 300
@@ -37,7 +38,7 @@ class Agent:
 class Snapshot:
     current: Agent
     alternative: Agent
-    in_flight: bool
+    ownership_state: Literal["idle", "active", "outcome_unknown"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -111,9 +112,18 @@ def parse_agent(name: str, value: Json, now: float) -> Agent:
 
 def parse_snapshot(raw: Json) -> Snapshot:
     data = mapping(raw)
-    now = number(data.get("now"))
-    if now <= 0:
-        raise InputError("invalid_decision_time")
+    if set(data) != {"created_at", "current", "ownership_state", "agents"}:
+        raise InputError("unsupported_or_missing_snapshot_fields")
+    now = time.time()
+    created_at = number(data.get("created_at"))
+    if not now - FRESHNESS <= created_at <= now + 5:
+        raise InputError("stale_or_future_snapshot")
+    ownership = data.get("ownership_state")
+    match ownership:
+        case "idle" | "active" | "outcome_unknown":
+            ownership_state = ownership
+        case _:
+            raise InputError("invalid_ownership_state")
     agents = mapping(data.get("agents"))
     if len(agents) != 2 or any(not name.strip() for name in agents):
         raise InputError("expected_two_named_primary_agents")
@@ -124,14 +134,14 @@ def parse_snapshot(raw: Json) -> Snapshot:
     return Snapshot(
         parse_agent(current, agents[current], now),
         parse_agent(alternative, agents[alternative], now),
-        boolean(data.get("in_flight")),
+        ownership_state,
     )
 
 
 def route(snapshot: Snapshot) -> Decision:
     """Suggest the next task owner; never transfer active ownership."""
     current, other = snapshot.current, snapshot.alternative
-    if snapshot.in_flight:
+    if snapshot.ownership_state != "idle":
         return Decision(current.name, "hold", "active_or_uncertain_work")
     if not current.available:
         if other.available:
@@ -154,25 +164,39 @@ def orca_executable() -> str:
     if os.environ.get("ORCA_DEV_REPO_ROOT"):
         return "orca-dev"
     if sys.platform.startswith("linux"):
-        # Conservative outside-session default; explicit env handles managed sessions.
-        return "orca-ide"
+        raise InputError("linux_requires_resolved_cli_argument")
     return "orca"
 
 
-def doctor() -> int:
+def doctor(executable: str | None = None) -> int:
     """Emit only runtime readiness/version/capabilities, not raw status or stderr."""
-    result = subprocess.run(
-        [orca_executable(), "status", "--json"],
-        capture_output=True, text=True, timeout=30, check=False,
-    )
-    if result.returncode != 0:
-        print(json.dumps({"ok": False, "error": "orca_status_failed"}))
+    selected = executable if executable else orca_executable()
+    try:
+        result = subprocess.run(
+            [selected, "status", "--json"],
+            capture_output=True, text=True, timeout=30, check=False,
+        )
+    except FileNotFoundError:
+        print(json.dumps({"ok": False, "error": "cli_not_found"}))
         return 1
-    raw: Json = json.loads(result.stdout)
-    envelope = mapping(raw)
-    payload = mapping(envelope.get("result"))
-    runtime = mapping(payload.get("runtime"))
-    graph = mapping(payload.get("graph"))
+    except subprocess.TimeoutExpired:
+        print(json.dumps({"ok": False, "error": "cli_timeout"}))
+        return 1
+    except OSError as error:
+        print(json.dumps({"ok": False, "error": "cli_execution_failed", "errno": error.errno}))
+        return 1
+    if result.returncode != 0:
+        print(json.dumps({"ok": False, "error": "orca_status_failed", "exit_code": result.returncode}))
+        return 1
+    try:
+        raw: Json = json.loads(result.stdout)
+        envelope = mapping(raw)
+        payload = mapping(envelope.get("result"))
+        runtime = mapping(payload.get("runtime"))
+        graph = mapping(payload.get("graph"))
+    except (json.JSONDecodeError, InputError):
+        print(json.dumps({"ok": False, "error": "invalid_orca_status"}))
+        return 1
     ok = envelope.get("ok") is True and runtime.get("reachable") is True and runtime.get("state") == "ready"
     ready = ok and graph.get("state") == "ready"
     print(json.dumps({
@@ -190,20 +214,21 @@ def main() -> int:
     args = sys.argv[1:]
     try:
         match args:
+            case ["doctor", executable]:
+                return doctor(executable)
             case ["doctor"]:
                 return doctor()
             case ["route", filename]:
-                with Path(filename).open(encoding="utf-8") as stream:
-                    raw: Json = json.load(stream)
+                raw: Json = json.loads(Path(filename).read_text(encoding="utf-8"))
                 print(json.dumps(asdict(route(parse_snapshot(raw)))))
                 return 0
             case _:
-                print("Usage: concertante.py doctor | route <private-snapshot.json>", file=sys.stderr)
+                print("Usage: concertante.py doctor [resolved-cli] | route <private-snapshot.json>", file=sys.stderr)
                 return 2
     except InputError as error:
         print(json.dumps({"ok": False, "error": str(error)}))
         return 2
-    except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError):
+    except (OSError, json.JSONDecodeError):
         print(json.dumps({"ok": False, "error": "read_failed_or_invalid_json"}))
         return 2
 
