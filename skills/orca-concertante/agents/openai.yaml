@@ -1,0 +1,4 @@
+interface:
+  display_name: "Orca Concertante"
+  short_description: "Goal-driven coding collaboration across Orca agents"
+  default_prompt: "Use $orca-concertante to complete this coding goal with explicit ownership, independent review, and evidence."
