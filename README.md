@@ -2,6 +2,8 @@
 
 A goal-driven coding-agent collaboration skill for [Orca](https://www.onorca.dev/).
 
+[한국어 안내](README.ko.md)
+
 Give the agent a goal once. Concertante helps it define completion, divide work, review independently, and hand off at safe checkpoints without repeatedly asking you to choose the next routine step.
 
 This is an independent community project, not an official Orca product.
