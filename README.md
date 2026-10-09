@@ -93,6 +93,8 @@ scheduler or task database. Read the [loop design](docs/loop-engineering.md).
 
 These are defaults, not vendor requirements. A project can replace the agents or use one agent, reporting the missing independent review rather than pretending it happened. Work allocation follows task fit, context, access, actual availability, and handoff cost—not subscription price.
 
+Collaboration should be inspectable: the coordinator identifies each participant's role, workspace, and tab, and reports observed progress and results. When the user asks to observe agents or preserve their sessions, settled worker tabs are retained through Orca's supported contract for inspection.
+
 ## Included today
 
 - A portable skill entrypoint using the installed Orca CLI's version-matched guides.

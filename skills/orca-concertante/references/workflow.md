@@ -17,9 +17,19 @@ For supervised work, follow the installed orchestration guide: confirm runtime, 
 
 The Run is a namespace and inbox, not an autonomous scheduler. The current coordinator must remain responsible for progress. Worker questions about routine implementation go to the coordinator, not the user. Escalate only missing user authority, unavailable user-only authentication, or a material goal/policy decision; continue independent tasks meanwhile.
 
-Input acceptance, turn start, settlement, and goal completion are separate facts. Use exact current dispatch identities. Read every delivered question/failure before acknowledging. Once Orca accepts settlement, reuse the proven terminal for immediate follow-up or release it through the official contract. Do not close unrelated user terminals.
+Input acceptance, turn start, settlement, and goal completion are separate facts. Use exact current dispatch identities. Read every delivered question/failure before acknowledging. Once Orca accepts settlement, reuse the proven terminal for immediate follow-up, retain it when the user requests session visibility or preservation, or release it through the official contract. Do not close unrelated user terminals.
 
 A simple transfer without supervision uses the installed CLI handoff path, not a fabricated Run. A transfer ends the old owner's work; it must not keep editing in parallel.
+
+## Make the work visible
+
+For each participating agent, tell the user its role and workspace when work starts. Discover the real terminal/tab through the installed CLI; give it a recognizable agent-and-task title using supported commands. Agents may overwrite titles, so report the current tab title and agent identity separately if that happens. Confirm input acceptance and turn start separately. A terminal creation receipt does not prove that the user saw it: verify tab inventory, and report UI visibility as unverified if the current interface cannot confirm it. Avoid switching the user's active tab unless requested.
+
+At meaningful checkpoints, summarize what each agent is doing, what evidence it produced, and which decision follows. Use observed states; do not invent percentages or present heartbeat as progress. Include failures and unavailable agents. Do not create unused agent tabs just to imply more participation.
+
+If the user wants to observe the agents or keep their sessions, treat that as an explicit retention request. After accepted settlement, load `skills get orchestration --reference references/recovery-and-cleanup.md` from the resolved CLI and use `worker-retain`; verify retained resource state and that the tab remains listed before acknowledging delivery. Retention keeps the settled session inspectable; it does not authorize further work. Keep that preference for the current task without asking again. Otherwise follow the installed reuse/release contract and tell the user when cleanup closes a worker tab.
+
+The final result names each actual participant, its contribution, outcome, and where the session or evidence can be inspected. An archived transcript is evidence, not a substitute for a requested visible tab.
 
 ## Review and repair
 

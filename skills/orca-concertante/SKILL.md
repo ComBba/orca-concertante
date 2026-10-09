@@ -25,6 +25,8 @@ If invoked in Claude with no initial design, obtain Codex's concept through supp
 
 Read [workflow](references/workflow.md) for actual coordination, checkpoints, and completion. Read [usage](references/usage.md) when deciding task allocation. Read [handoff](references/handoff.md) before changing ownership or recovering an interrupted run.
 
+Make collaboration inspectable: identify each participating agent's role, workspace, and visible tab; report observed progress and results. When the user requests visibility or preservation of agent sessions, retain settled worker terminals through Orca's supported contract rather than automatically closing them. Follow [workflow](references/workflow.md) for visibility and cleanup accounting.
+
 ## Complete with evidence
 
 Execute the smallest useful task, verify its real surface, use an independent review where available, and fix material findings. Follow the target repository's PR and release policy. Do not treat an input receipt, heartbeat, green tests, or merge as proof of the user's full goal.
